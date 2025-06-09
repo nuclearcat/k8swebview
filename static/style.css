@@ -1,0 +1,88 @@
+/* Custom styles */
+.status-running {
+    color: #059669;
+    background-color: #D1FAE5;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.status-pending {
+    color: #D97706;
+    background-color: #FEF3C7;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.status-failed {
+    color: #DC2626;
+    background-color: #FEE2E2;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.status-succeeded {
+    color: #059669;
+    background-color: #D1FAE5;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.status-unknown {
+    color: #6B7280;
+    background-color: #F3F4F6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+#logs-content {
+    max-height: 70vh;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.view-logs-btn {
+    background-color: #4F46E5;
+    color: white;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.view-logs-btn:hover {
+    background-color: #4338CA;
+}
+
+.describe-pod-btn {
+    background-color: #4B5563;
+    color: white;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.describe-pod-btn:hover {
+    background-color: #374151;
+}
+
+/* Loading spinner */
+.loading {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+} 
