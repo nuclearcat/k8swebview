@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from kubernetes import client, config
@@ -7,6 +7,7 @@ from kubernetes.client.rest import ApiException
 import os
 from typing import List, Dict
 import json
+import gzip
 from auth import get_current_user
 
 app = FastAPI()
@@ -94,18 +95,41 @@ async def get_pods(context: str, username: str = Depends(get_current_user)):
 
 
 @app.get("/api/logs/{context}/{namespace}/{pod}")
-async def get_pod_logs(context: str, namespace: str, pod: str, username: str = Depends(get_current_user)):
+async def get_pod_logs(context: str, namespace: str, pod: str, request: Request, username: str = Depends(get_current_user)):
     """Get logs for a specific pod."""
+    print(f"Starting log retrieval for pod: {pod} in namespace: {namespace}, context: {context}")
     try:
         config.load_kube_config(context=context)
         v1 = client.CoreV1Api()
         logs = v1.read_namespaced_pod_log(name=pod, namespace=namespace)
-        return {"logs": logs}
+        log_size = len(logs) if logs else 0
+        
+        # Check if browser accepts gzip compression
+        accept_encoding = request.headers.get("accept-encoding", "")
+        if "gzip" in accept_encoding.lower() and logs:
+            # Compress the logs
+            response_data = json.dumps({"logs": logs}).encode('utf-8')
+            compressed_data = gzip.compress(response_data)
+            compressed_size = len(compressed_data)
+            print(f"Completed log retrieval for pod: {pod}, original size: {log_size} bytes, compressed size: {compressed_size} bytes")
+            return Response(
+                content=compressed_data,
+                media_type="application/json",
+                headers={
+                    "Content-Encoding": "gzip",
+                    "Content-Length": str(compressed_size)
+                }
+            )
+        else:
+            print(f"Completed log retrieval for pod: {pod}, content size: {log_size} bytes")
+            return {"logs": logs}
     except ApiException as e:
+        print(f"Failed to retrieve logs for pod: {pod}, error: {str(e)}")
         if e.status == 403:
             return {"error": "Permission denied to access pod logs"}
         return {"error": str(e)}
     except Exception as e:
+        print(f"Failed to retrieve logs for pod: {pod}, error: {str(e)}")
         return {"error": str(e)}
 
 

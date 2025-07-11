@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  k8swebview:
+    image: nuclearcat/k8swebview:latest
+    container_name: k8swebview
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount kubeconfig for accessing Kubernetes clusters
+      - ${HOME}/.kube:/home/appuser/.kube:ro
+      # Mount data directory for auth configuration
+      - ./data:/app/data
+    environment:
+      - KUBECONFIG=/home/appuser/.kube/config
+    restart: unless-stopped
+    user: "1000:1000"
