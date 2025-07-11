@@ -105,6 +105,10 @@ async function loadContexts() {
     showSpinner('Loading contexts...');
     try {
         const response = await fetch('/api/contexts');
+        if (response.status === 401) {
+            window.location.reload();
+            return;
+        }
         const data = await response.json();
         
         contextSelect.innerHTML = '<option value="">Select a context</option>';
@@ -163,6 +167,10 @@ async function loadPods() {
     showSpinner('Loading pods...');
     try {
         const response = await fetch(`/api/pods/${context}`);
+        if (response.status === 401) {
+            window.location.reload();
+            return;
+        }
         const data = await response.json();
         
         podsTableBody.innerHTML = '';
@@ -217,6 +225,10 @@ async function viewLogs(context, namespace, pod) {
         showSpinner('Loading logs...');
 
         const response = await fetch(`/api/logs/${context}/${namespace}/${pod}`);
+        if (response.status === 401) {
+            window.location.reload();
+            return;
+        }
         const data = await response.json();
         
         if (data.error) {
@@ -247,6 +259,10 @@ async function describePod(context, namespace, pod) {
         showSpinner('Loading pod details...');
 
         const response = await fetch(`/api/describe/${context}/${namespace}/${pod}`);
+        if (response.status === 401) {
+            window.location.reload();
+            return;
+        }
         const data = await response.json();
         
         if (data.error) {

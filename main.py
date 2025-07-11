@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -7,6 +7,7 @@ from kubernetes.client.rest import ApiException
 import os
 from typing import List, Dict
 import json
+from auth import get_current_user
 
 app = FastAPI()
 
@@ -68,19 +69,19 @@ def get_pods_for_context(context_name: str) -> List[Dict]:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
+async def root(request: Request, username: str = Depends(get_current_user)):
     """Render the main page."""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request, "username": username})
 
 
 @app.get("/api/contexts")
-async def get_contexts():
+async def get_contexts(username: str = Depends(get_current_user)):
     """Get all available Kubernetes contexts."""
     return {"contexts": get_k8s_contexts()}
 
 
 @app.get("/api/pods/{context}")
-async def get_pods(context: str):
+async def get_pods(context: str, username: str = Depends(get_current_user)):
     """Get pods for a specific context or all contexts if context is 'all'."""
     if context == "all":
         all_pods = []
@@ -93,7 +94,7 @@ async def get_pods(context: str):
 
 
 @app.get("/api/logs/{context}/{namespace}/{pod}")
-async def get_pod_logs(context: str, namespace: str, pod: str):
+async def get_pod_logs(context: str, namespace: str, pod: str, username: str = Depends(get_current_user)):
     """Get logs for a specific pod."""
     try:
         config.load_kube_config(context=context)
@@ -109,7 +110,7 @@ async def get_pod_logs(context: str, namespace: str, pod: str):
 
 
 @app.get("/api/describe/{context}/{namespace}/{pod}")
-async def describe_pod(context: str, namespace: str, pod: str):
+async def describe_pod(context: str, namespace: str, pod: str, username: str = Depends(get_current_user)):
     """Get detailed information about a specific pod."""
     try:
         config.load_kube_config(context=context)
